@@ -6,11 +6,15 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputType;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 
 import com.fu.duckracing.animation.AnimatedSeekBar;
 import com.fu.duckracing.model.Duck;
@@ -39,12 +43,16 @@ public class MainActivity extends AppCompatActivity {
 
         mp = MediaPlayer.create(MainActivity.this, R.raw.duck_racing);
         ImageButton btnStart = findViewById(R.id.btnStart);
+        AppCompatButton btnReset = findViewById(R.id.btnReset);
         AnimatedSeekBar seekBarDuck1 = findViewById(R.id.seekBarDuck1);
         AnimatedSeekBar seekBarDuck2 = findViewById(R.id.seekBarDuck2);
         AnimatedSeekBar seekBarDuck3 = findViewById(R.id.seekBarDuck3);
         CheckBox checkBox1 = findViewById(R.id.checkBox1);
         CheckBox checkBox2 = findViewById(R.id.checkBox2);
         CheckBox checkBox3 = findViewById(R.id.checkBox3);
+        EditText txtBet1 = findViewById(R.id.txtBet1);
+        EditText txtBet2 = findViewById(R.id.txtBet2);
+        EditText txtBet3 = findViewById(R.id.txtBet3);
 
         ducks = new ArrayList<>();
         ducks.add(new Duck(seekBarDuck1, checkBox1, "duck1"));
@@ -58,10 +66,91 @@ public class MainActivity extends AppCompatActivity {
         handler = new Handler(Looper.getMainLooper());
         random = new Random();
 
+        updateBetEditTextState(checkBox1, txtBet1);
+        updateBetEditTextState(checkBox2, txtBet2);
+        updateBetEditTextState(checkBox3, txtBet3);
+
+        checkBox1.setOnCheckedChangeListener((buttonView, isChecked) -> updateBetEditTextState(checkBox1, txtBet1));
+        checkBox2.setOnCheckedChangeListener((buttonView, isChecked) -> updateBetEditTextState(checkBox2, txtBet2));
+        checkBox3.setOnCheckedChangeListener((buttonView, isChecked) -> updateBetEditTextState(checkBox3, txtBet3));
+
         btnStart.setOnClickListener(click -> {
-            btnStart.setEnabled(false);
-            startRace();
+            boolean betRequired1 = checkBox1.isChecked();
+            boolean betRequired2 = checkBox2.isChecked();
+            boolean betRequired3 = checkBox3.isChecked();
+            boolean allBetsValid = true;
+
+            String betValue1 = txtBet1.getText().toString();
+            String betValue2 = txtBet2.getText().toString();
+            String betValue3 = txtBet3.getText().toString();
+
+            // validate before start a game
+            if (!betRequired1 && !betRequired2 && !betRequired3) {
+                Toast.makeText(MainActivity.this, "Please choose at least a duck to start game!", Toast.LENGTH_SHORT).show();
+                allBetsValid = false;
+            }
+
+            if (betRequired1 && betValue1.isEmpty()) {
+                Toast.makeText(MainActivity.this, "Please input bet value for Duck 1 before start!", Toast.LENGTH_SHORT).show();
+                allBetsValid = false;
+            }
+
+            if (betRequired2 && betValue2.isEmpty()) {
+                Toast.makeText(MainActivity.this, "Please input bet value for Duck 2 before start!", Toast.LENGTH_SHORT).show();
+                allBetsValid = false;
+            }
+
+            if (betRequired3 && betValue3.isEmpty()) {
+                Toast.makeText(MainActivity.this, "Please input bet value for Duck 3 before start!", Toast.LENGTH_SHORT).show();
+                allBetsValid = false;
+            }
+
+            if (allBetsValid) {
+                startRace();
+                // unable 2 button and checkbox when a game processing
+                btnStart.setEnabled(false);
+                btnReset.setEnabled(false);
+                checkBox1.setEnabled(false);
+                checkBox2.setEnabled(false);
+                checkBox3.setEnabled(false);
+                btnStart.setAlpha(0.5f);
+                btnReset.setAlpha(0.5f);
+            }
         });
+
+        btnReset.setOnClickListener(click -> {
+            for (Duck duck : ducks) {
+                duck.getSeekBar().setProgress(0); // Reset progress
+            }
+
+            // enable start button when end a game
+            btnStart.setEnabled(true);
+            btnStart.setAlpha(1f);
+
+            // reset bet value
+            txtBet1.setText(null);
+            txtBet2.setText(null);
+            txtBet3.setText(null);
+
+            // reset checkbox
+            checkBox1.setEnabled(true);
+            checkBox1.setChecked(false);
+            checkBox2.setEnabled(true);
+            checkBox2.setChecked(false);
+            checkBox3.setEnabled(true);
+            checkBox3.setChecked(false);
+        });
+    }
+
+    private void updateBetEditTextState(CheckBox checkBox, EditText editText) {
+        if (checkBox.isChecked()) {
+            editText.setInputType(InputType.TYPE_CLASS_NUMBER); // Allow decimals (adjust as needed)
+            editText.setEnabled(true);
+        } else {
+            editText.setInputType(InputType.TYPE_NULL); // Prevent any input
+            editText.setText(""); // Clear any entered value
+            editText.setEnabled(false); // Disable EditText for unchecked checkbox
+        }
     }
 
     private void startRace() {
@@ -92,6 +181,8 @@ public class MainActivity extends AppCompatActivity {
                         duck.getSeekBar().setProgress(Math.min(currentProgress + randomIncrement, 100));
                     } else if (!resultsContainsDuck(duck)) {
                         results.add(new DuckResult(duck.getName(), duck.getSeekBar().getProgress()));
+                        raceOver = true;
+                        break;
                     }
                 }
 
@@ -103,13 +194,14 @@ public class MainActivity extends AppCompatActivity {
                     handler.postDelayed(this, 100); // Update every 100ms
                 } else {
                     mp.stop();
-                    Collections.sort(results, Comparator.comparingInt(DuckResult::getTime));
+                    results.sort(Comparator.comparingInt(DuckResult::getTime));
                     for (int i = 0; i < results.size(); i++) {
                         System.out.println("Position " + (i + 1) + ": " + results.get(i).getDuckName() + " Time: " + results.get(i).getTime());
                     }
                     runOnUiThread(() -> {
-                        ImageButton btnStart = findViewById(R.id.btnStart);
-                        btnStart.setEnabled(true);
+                        AppCompatButton btnReset = findViewById(R.id.btnReset);
+                        btnReset.setEnabled(true);
+                        btnReset.setAlpha(1f);
                     });
                 }
             }
