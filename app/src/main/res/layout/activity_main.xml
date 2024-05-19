@@ -95,7 +95,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textViewBalance" />
 
         <ImageButton
-            android:id="@+id/imageButton"
+            android:id="@+id/btnStart"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginTop="20dp"
@@ -118,7 +118,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/imageButton"
+            app:layout_constraintStart_toEndOf="@+id/btnStart"
             app:layout_constraintTop_toBottomOf="@+id/btnDeposit" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -161,11 +161,12 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.06" />
 
-        <CheckBox
+        <androidx.appcompat.widget.AppCompatCheckBox
             android:id="@+id/checkBox1"
             android:layout_width="0dp"
             android:layout_height="30dp"
-            android:padding="10dp"
+            android:background="@drawable/custom_checkbox_1"
+            android:button="@color/black"
             app:layout_constraintEnd_toStartOf="@+id/guideline5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline2" />
@@ -174,6 +175,8 @@
             android:id="@+id/checkBox2"
             android:layout_width="0dp"
             android:layout_height="30dp"
+            android:background="@drawable/custom_checkbox_2"
+            android:button="@color/black"
             app:layout_constraintEnd_toStartOf="@+id/guideline5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline3" />
@@ -182,34 +185,36 @@
             android:id="@+id/checkBox3"
             android:layout_width="0dp"
             android:layout_height="30dp"
+            android:background="@drawable/custom_checkbox_3"
+            android:button="@color/black"
             app:layout_constraintEnd_toStartOf="@+id/guideline5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline4" />
 
-        <SeekBar
-            android:id="@+id/seekBarCar1"
+        <com.fu.duckracing.animation.AnimatedSeekBar
+            android:id="@+id/seekBarDuck1"
             android:layout_width="0dp"
-            android:layout_height="35dp"
+            android:layout_height="40dp"
             android:thumb="@drawable/ic_duck_1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline2"
             app:layout_constraintWidth_percent="0.79" />
 
-        <SeekBar
-            android:id="@+id/seekBarCar2"
+        <com.fu.duckracing.animation.AnimatedSeekBar
+            android:id="@+id/seekBarDuck2"
             android:layout_width="0dp"
-            android:layout_height="35dp"
+            android:layout_height="40dp"
             android:thumb="@drawable/ic_duck_2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline3"
             app:layout_constraintWidth_percent="0.79" />
 
-        <SeekBar
-            android:id="@+id/seekBarCar3"
+        <com.fu.duckracing.animation.AnimatedSeekBar
+            android:id="@+id/seekBarDuck3"
             android:layout_width="0dp"
-            android:layout_height="35dp"
+            android:layout_height="40dp"
             android:thumb="@drawable/ic_duck_3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
