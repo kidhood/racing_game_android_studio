@@ -11,6 +11,7 @@ import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 
 import com.fu.duckracing.animation.AnimatedSeekBar;
 import com.fu.duckracing.model.Duck;
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         mp = MediaPlayer.create(MainActivity.this, R.raw.duck_racing);
         ImageButton btnStart = findViewById(R.id.btnStart);
+        AppCompatButton btnReset = findViewById(R.id.btnReset);
         AnimatedSeekBar seekBarDuck1 = findViewById(R.id.seekBarDuck1);
         AnimatedSeekBar seekBarDuck2 = findViewById(R.id.seekBarDuck2);
         AnimatedSeekBar seekBarDuck3 = findViewById(R.id.seekBarDuck3);
@@ -60,7 +62,15 @@ public class MainActivity extends AppCompatActivity {
 
         btnStart.setOnClickListener(click -> {
             btnStart.setEnabled(false);
+            btnReset.setEnabled(false);
             startRace();
+        });
+
+        btnReset.setOnClickListener(click -> {
+            for (Duck duck : ducks) {
+                duck.getSeekBar().setProgress(0); // Reset progress
+            }
+            btnStart.setEnabled(true);
         });
     }
 
@@ -103,13 +113,13 @@ public class MainActivity extends AppCompatActivity {
                     handler.postDelayed(this, 100); // Update every 100ms
                 } else {
                     mp.stop();
-                    Collections.sort(results, Comparator.comparingInt(DuckResult::getTime));
+                    results.sort(Comparator.comparingInt(DuckResult::getTime));
                     for (int i = 0; i < results.size(); i++) {
                         System.out.println("Position " + (i + 1) + ": " + results.get(i).getDuckName() + " Time: " + results.get(i).getTime());
                     }
                     runOnUiThread(() -> {
-                        ImageButton btnStart = findViewById(R.id.btnStart);
-                        btnStart.setEnabled(true);
+                        AppCompatButton btnReset = findViewById(R.id.btnReset);
+                        btnReset.setEnabled(true);
                     });
                 }
             }
