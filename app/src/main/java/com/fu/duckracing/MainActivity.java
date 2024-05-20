@@ -1,15 +1,20 @@
 package com.fu.duckracing;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -32,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private List<DuckResult> results;
     private Handler handler;
     private Random random;
+    List<Duck> userSelectedDucks = new ArrayList<>();
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -53,11 +59,13 @@ public class MainActivity extends AppCompatActivity {
         EditText txtBet1 = findViewById(R.id.txtBet1);
         EditText txtBet2 = findViewById(R.id.txtBet2);
         EditText txtBet3 = findViewById(R.id.txtBet3);
+        TextView balance = findViewById(R.id.txtBalance);
+        balance.setText("200");
 
         ducks = new ArrayList<>();
-        ducks.add(new Duck(seekBarDuck1, checkBox1, "duck1"));
-        ducks.add(new Duck(seekBarDuck2, checkBox2, "duck2"));
-        ducks.add(new Duck(seekBarDuck3, checkBox3, "duck3"));
+        ducks.add(new Duck(seekBarDuck1, checkBox1, "Vịt gangster"));
+        ducks.add(new Duck(seekBarDuck2, checkBox2, "Vịt baby"));
+        ducks.add(new Duck(seekBarDuck3, checkBox3, "Vịt bầu"));
 
         seekBarDuck1.setOnTouchListener((v, event) -> true);
         seekBarDuck2.setOnTouchListener((v, event) -> true);
@@ -79,10 +87,30 @@ public class MainActivity extends AppCompatActivity {
             boolean betRequired2 = checkBox2.isChecked();
             boolean betRequired3 = checkBox3.isChecked();
             boolean allBetsValid = true;
+            int totalBet = 0;
 
             String betValue1 = txtBet1.getText().toString();
             String betValue2 = txtBet2.getText().toString();
             String betValue3 = txtBet3.getText().toString();
+            try {
+                if (!betValue1.isEmpty()) {
+                    totalBet += Integer.parseInt(betValue1);
+                }
+                if (!betValue2.isEmpty()) {
+                    totalBet += Integer.parseInt(betValue2);
+                }
+                if (!betValue3.isEmpty()) {
+                    totalBet += Integer.parseInt(betValue3);
+                }
+
+                if (totalBet > Integer.parseInt(balance.getText().toString())) {
+                    Toast.makeText(MainActivity.this, "Balance is not enough, please deposit more money!", Toast.LENGTH_SHORT).show();
+                    allBetsValid = false;
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(MainActivity.this, "Invalid bet value(s)", Toast.LENGTH_SHORT).show();
+                allBetsValid = false;
+            }
 
             // validate before start a game
             if (!betRequired1 && !betRequired2 && !betRequired3) {
@@ -91,21 +119,33 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (betRequired1 && betValue1.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Please input bet value for Duck 1 before start!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Please input bet value for " + ducks.get(0).getName() + " before start!", Toast.LENGTH_SHORT).show();
                 allBetsValid = false;
             }
 
             if (betRequired2 && betValue2.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Please input bet value for Duck 2 before start!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Please input bet value for " + ducks.get(1).getName() + " before start!", Toast.LENGTH_SHORT).show();
                 allBetsValid = false;
             }
 
             if (betRequired3 && betValue3.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Please input bet value for Duck 3 before start!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Please input bet value for "  + ducks.get(2).getName() + " before start!", Toast.LENGTH_SHORT).show();
                 allBetsValid = false;
             }
 
             if (allBetsValid) {
+                if (betRequired1) {
+                    userSelectedDucks.add(ducks.get(0));
+                    txtBet1.setEnabled(false);
+                }
+                if (betRequired2) {
+                    userSelectedDucks.add(ducks.get(1));
+                    txtBet2.setEnabled(false);
+                }
+                if (betRequired3) {
+                    userSelectedDucks.add(ducks.get(2));
+                    txtBet3.setEnabled(false);
+                }
                 startRace();
                 // unable 2 button and checkbox when a game processing
                 btnStart.setEnabled(false);
@@ -195,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     mp.stop();
                     results.sort(Comparator.comparingInt(DuckResult::getTime));
+                    showRaceResultDialog(results);
                     for (int i = 0; i < results.size(); i++) {
                         System.out.println("Position " + (i + 1) + ": " + results.get(i).getDuckName() + " Time: " + results.get(i).getTime());
                     }
@@ -206,6 +247,61 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }, 100); // Initial delay of 100ms
+    }
+
+    private void showRaceResultDialog(List<DuckResult> results) {
+        int winnerIndex = 0;
+        ImageView image = findViewById(R.id.winner_image);
+        StringBuilder resultMessage = new StringBuilder();
+
+        for (int i = 1; i < results.size(); i++) {
+            if (results.get(i).getTime() < results.get(winnerIndex).getTime()) {
+                winnerIndex = i;
+            }
+        }
+
+        DuckResult winner = results.get(winnerIndex);
+        String winnerName = winner.getDuckName();
+//        if (winnerName == "Vịt gangster") {
+//            image.setImageResource(R.drawable.ic_duck_1);
+//        } else if (winnerName == "Vịt baby") {
+//            image.setImageResource(R.drawable.ic_duck_2);
+//        } else {
+//            image.setImageResource(R.drawable.ic_duck_3);
+//        }
+
+        resultMessage.append("Winner: " +  winnerName + "\n");
+
+        boolean userChoseWinner = false;
+        for (Duck duck : userSelectedDucks) {
+            if (duck.getName().equals(winnerName)) {
+                userChoseWinner = true;
+                break;
+            }
+        }
+
+        // handle cal bet
+        if (userChoseWinner) {
+            // User chose the winner!
+            resultMessage.append("Congrats! You win" + "$");
+        } else {
+            // User chose the wrong duck
+            resultMessage.append("Unlucky, you lose" + "$");
+        }
+
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.result_dialog, null);
+
+        TextView message = dialogView.findViewById(R.id.message);
+        message.setText(resultMessage.toString());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView)
+                .setCancelable(false) // Prevent dismissing without clicking a button
+                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss()); // Dismiss dialog on button click
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     private boolean resultsContainsDuck(Duck duck) {
