@@ -2,6 +2,7 @@ package com.fu.duckracing;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -60,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
         EditText txtBet2 = findViewById(R.id.txtBet2);
         EditText txtBet3 = findViewById(R.id.txtBet3);
         TextView balance = findViewById(R.id.txtBalance);
-        balance.setText("200");
 
         ducks = new ArrayList<>();
         ducks.add(new Duck(seekBarDuck1, checkBox1, "Vịt gangster"));
@@ -250,8 +250,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showRaceResultDialog(List<DuckResult> results) {
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.result_dialog, null);
+
         int winnerIndex = 0;
-        ImageView image = findViewById(R.id.winner_image);
+        int profit = 0;
+        TextView balance = findViewById(R.id.txtBalance);
+        int balanceValue = 0;
+
+        int betValue1 = 0;
+        int betValue2 = 0;
+        int betValue3 = 0;
+
+        EditText txtBet1 = findViewById(R.id.txtBet1);
+        EditText txtBet2 = findViewById(R.id.txtBet2);
+        EditText txtBet3 = findViewById(R.id.txtBet3);
+
+        ImageView image = dialogView.findViewById(R.id.winner_image);
         StringBuilder resultMessage = new StringBuilder();
 
         for (int i = 1; i < results.size(); i++) {
@@ -262,35 +277,61 @@ public class MainActivity extends AppCompatActivity {
 
         DuckResult winner = results.get(winnerIndex);
         String winnerName = winner.getDuckName();
-//        if (winnerName == "Vịt gangster") {
-//            image.setImageResource(R.drawable.ic_duck_1);
-//        } else if (winnerName == "Vịt baby") {
-//            image.setImageResource(R.drawable.ic_duck_2);
-//        } else {
-//            image.setImageResource(R.drawable.ic_duck_3);
-//        }
+        if (winnerName == "Vịt gangster") {
+            image.setImageResource(R.drawable.ic_duck_1);
+        } else if (winnerName == "Vịt baby") {
+            image.setImageResource(R.drawable.ic_duck_2);
+        } else {
+            image.setImageResource(R.drawable.ic_duck_3);
+        }
+
+        if (!txtBet1.getText().toString().isEmpty()) {
+            betValue1 = Integer.parseInt(txtBet1.getText().toString());
+        }
+        if (!txtBet2.getText().toString().isEmpty()) {
+            betValue2 = Integer.parseInt(txtBet2.getText().toString());
+        }
+        if (!txtBet3.getText().toString().isEmpty()) {
+            betValue3 = Integer.parseInt(txtBet3.getText().toString());
+        }
 
         resultMessage.append("Winner: " +  winnerName + "\n");
 
-        boolean userChoseWinner = false;
+
         for (Duck duck : userSelectedDucks) {
             if (duck.getName().equals(winnerName)) {
-                userChoseWinner = true;
+                if (winnerName.equals("Vịt gangster")) {
+                    profit = betValue1;
+                } else if (winnerName.equals("Vịt baby")) {
+                    profit = betValue2;
+                } else {
+                    profit = betValue3;
+                }
                 break;
             }
         }
-
-        // handle cal bet
-        if (userChoseWinner) {
-            // User chose the winner!
-            resultMessage.append("Congrats! You win" + "$");
+        if (winnerName.equals("Vịt gangster")) {
+            profit = profit - betValue2 - betValue3;
+        } else if (winnerName.equals("Vịt baby")) {
+            profit = profit - betValue1 - betValue3;
         } else {
-            // User chose the wrong duck
-            resultMessage.append("Unlucky, you lose" + "$");
+            profit = profit - betValue1 - betValue2;
         }
 
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.result_dialog, null);
+        // handle cal bet
+        if (profit >= 0) {
+            // User chose the winner!
+            resultMessage.append("Congrats! You won " + profit + "$");
+            balanceValue = Integer.parseInt(balance.getText().toString()) + profit;
+            String balanceText = String.valueOf(balanceValue);
+            balance.setText(balanceText);
+        } else {
+            // User chose the wrong duck
+            resultMessage.append("Unlucky, you lost " + profit + "$");
+            balanceValue = Integer.parseInt(balance.getText().toString()) + profit;
+            String balanceText = String.valueOf(balanceValue);
+            balance.setText(balanceText);
+        }
 
         TextView message = dialogView.findViewById(R.id.message);
         message.setText(resultMessage.toString());
