@@ -11,6 +11,8 @@ import android.os.Looper;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -27,7 +29,6 @@ import com.fu.duckracing.model.Duck;
 import com.fu.duckracing.model.DuckResult;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -40,6 +41,12 @@ public class MainActivity extends AppCompatActivity {
     private Random random;
     List<Duck> userSelectedDucks = new ArrayList<>();
 
+    // Charge Component
+    private Dialog chargeDialog;
+    private Button btnCharge;
+    private TextView btnChargeClose;
+    private TextView txtAmount;
+    private Button btnDeposit;
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +68,17 @@ public class MainActivity extends AppCompatActivity {
         EditText txtBet2 = findViewById(R.id.txtBet2);
         EditText txtBet3 = findViewById(R.id.txtBet3);
         TextView balance = findViewById(R.id.txtBalance);
+
+        // Charge Component
+        chargeDialog = new Dialog(this);
+        chargeDialog.setContentView(R.layout.charge_dialog);
+        chargeDialog.setCancelable(false);
+        chargeDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        btnCharge = (Button) chargeDialog.findViewById(R.id.btnCharge);
+        btnChargeClose = (TextView) chargeDialog.findViewById(R.id.btnChargeClose);
+        btnDeposit = (Button) findViewById(R.id.btnDeposit);
+        txtAmount = chargeDialog.findViewById(R.id.txtChargeAmount);
+        chargeDialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.charge_background_xml));
 
         ducks = new ArrayList<>();
         ducks.add(new Duck(seekBarDuck1, checkBox1, "Vịt gangster"));
@@ -179,6 +197,20 @@ public class MainActivity extends AppCompatActivity {
             checkBox2.setChecked(false);
             checkBox3.setEnabled(true);
             checkBox3.setChecked(false);
+        });
+
+        btnDeposit.setOnClickListener(click -> {
+            chargeDialog.show();
+        });
+
+        btnChargeClose.setOnClickListener(click -> {
+            chargeDialog.dismiss();
+        });
+
+        btnCharge.setOnClickListener( click -> {
+            if(chargeDialogVisible(balance)){
+                chargeDialog.dismiss();
+            }
         });
     }
 
@@ -352,6 +384,28 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return false;
+    }
+
+    private boolean chargeDialogVisible(TextView balance) {
+        String strAmount = this.txtAmount.getText().toString();
+        if(strAmount.equals("")){
+            Toast.makeText(MainActivity.this, "Please enter amount: ", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if(Integer.parseInt(strAmount) <= 0){
+            Toast.makeText(MainActivity.this, "Please enter amount greater than 0: ", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        int balanceValue = Integer.parseInt(balance.getText().toString());
+        int newBalance = balanceValue + Integer.parseInt(strAmount);
+        String balanceText = String.valueOf(newBalance);
+        balance.setText(balanceText);
+        MediaPlayer me = MediaPlayer.create(MainActivity.this, R.raw.ring);
+        me.start();
+        this.txtAmount.setText("");
+        return true;
     }
 
 }
