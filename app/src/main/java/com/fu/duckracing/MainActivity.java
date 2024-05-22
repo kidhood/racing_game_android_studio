@@ -279,8 +279,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     mp.stop();
                     results.sort(Comparator.comparingInt(DuckResult::getTime));
-                    mp = MediaPlayer.create(MainActivity.this, R.raw.win);
-                    mp.start();
                     showRaceResultDialog(results);
                     for (int i = 0; i < results.size(); i++) {
                         System.out.println("Position " + (i + 1) + ": " + results.get(i).getDuckName() + " Time: " + results.get(i).getTime());
@@ -368,12 +366,16 @@ public class MainActivity extends AppCompatActivity {
         // handle cal bet
         if (profit >= 0) {
             // User chose the winner!
+            mp = MediaPlayer.create(MainActivity.this, R.raw.win);
+            mp.start();
             resultMessage.append("Congrats! You won " + profit + "$");
             balanceValue = Integer.parseInt(balance.getText().toString()) + profit;
             String balanceText = String.valueOf(balanceValue);
             balance.setText(balanceText);
         } else {
             // User chose the wrong duck
+            mp = MediaPlayer.create(MainActivity.this, R.raw.lose);
+            mp.start();
             resultMessage.append("Unlucky, you lost " + profit + "$");
             balanceValue = Integer.parseInt(balance.getText().toString()) + profit;
             String balanceText = String.valueOf(balanceValue);
