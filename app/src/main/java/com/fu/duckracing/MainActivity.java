@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView txtAmount;
     private Button btnDeposit;
     private String txtUsername;
+    private Button close;
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -302,6 +303,7 @@ public class MainActivity extends AppCompatActivity {
         int profit = 0;
         TextView balance = findViewById(R.id.txtBalance);
         int balanceValue = 0;
+        close = dialogView.findViewById(R.id.close);
 
         int betValue1 = 0;
         int betValue2 = 0;
@@ -386,13 +388,16 @@ public class MainActivity extends AppCompatActivity {
         message.setText(resultMessage.toString());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ResultDialogTheme);
-        builder.setView(dialogView)
-                .setCancelable(false) // Prevent dismissing without clicking a button
-                .setPositiveButton("Close", (dialog, which) -> {
-                    dialog.dismiss();
-                    mp.stop();
-                }); // Dismiss dialog on button click
+        builder.setView(dialogView);
+
         AlertDialog dialog = builder.create();
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                mp.stop();
+            }
+        });
         dialog.show();
     }
 

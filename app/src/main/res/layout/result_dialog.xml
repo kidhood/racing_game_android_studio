@@ -21,17 +21,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:gravity="center"
         android:paddingBottom="16dp"
         android:text=""
-        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/winner_image" />
 
     <ImageView
         android:id="@+id/winner_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="12dp"
         android:src="@drawable/ic_launcher_background"
@@ -39,5 +39,22 @@
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/trophyImage" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/close"
+        android:layout_width="64dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/reset_button"
+        android:text="Close"
+        android:textAllCaps="false"
+        android:textColor="#FF0000"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/message" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
