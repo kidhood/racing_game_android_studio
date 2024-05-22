@@ -25,10 +25,11 @@ public class LoginActivity extends AppCompatActivity {
 
         btnLogin.setOnClickListener(v -> {
             if(!CheckLogin()){
-                Toast.makeText(LoginActivity.this, "Username and Password not correct\n Username: iloveyou | Password: metoo", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "Username and Password not correct\nUsername: iloveyou | Password: metoo", Toast.LENGTH_SHORT).show();
                 return;
             }
             Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("username", txtUsername.getText().toString());
             startActivity(intent);
             finish();
         });

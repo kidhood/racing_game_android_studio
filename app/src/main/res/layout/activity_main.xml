@@ -47,10 +47,10 @@
             app:layout_constraintTop_toTopOf="@+id/guideline6" />
 
         <TextView
-            android:id="@+id/txtUserName"
+            android:id="@+id/username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Thống"
+            android:text=""
             android:textColor="#0195CA"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -73,7 +73,7 @@
             android:id="@+id/txtBalance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="120"
+            android:text="100"
             android:textColor="#B6A829"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -84,10 +84,11 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnDeposit"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/button_background"
             android:text="Deposit"
+            android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -97,9 +98,9 @@
 
         <ImageButton
             android:id="@+id/btnStart"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="20dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="30dp"
             android:background="@drawable/circle_with_border"
             android:src="@drawable/ic_play"
             app:layout_constraintEnd_toStartOf="@+id/btnReset"
@@ -110,17 +111,17 @@
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnReset"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="20dp"
+            android:layout_height="40dp"
             android:background="@drawable/reset_button"
-            android:text="RESET"
+            android:text="Reset"
+            android:textAllCaps="false"
             android:textColor="#FF0000"
+            android:textSize="16sp"
             android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/btnStart"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/btnStart"
-            app:layout_constraintTop_toBottomOf="@+id/btnDeposit" />
+            app:layout_constraintTop_toTopOf="@+id/btnStart" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

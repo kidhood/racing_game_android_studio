@@ -3,6 +3,7 @@ package com.fu.duckracing;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView btnChargeClose;
     private TextView txtAmount;
     private Button btnDeposit;
+    private String txtUsername;
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +70,14 @@ public class MainActivity extends AppCompatActivity {
         EditText txtBet2 = findViewById(R.id.txtBet2);
         EditText txtBet3 = findViewById(R.id.txtBet3);
         TextView balance = findViewById(R.id.txtBalance);
+
+        TextView username = findViewById(R.id.username);
+        // get username from login form
+        Intent intent = getIntent();
+        if (intent.hasExtra("username")) {
+            txtUsername = intent.getStringExtra("username");
+            username.setText(txtUsername);
+        }
 
         // Charge Component
         chargeDialog = new Dialog(this);
@@ -136,17 +146,17 @@ public class MainActivity extends AppCompatActivity {
                 allBetsValid = false;
             }
 
-            if (betRequired1 && betValue1.isEmpty()) {
+            if (betRequired1 && betValue1.isEmpty() || (betRequired1 && Double.parseDouble(betValue1) <= 0)) {
                 Toast.makeText(MainActivity.this, "Please input bet value for " + ducks.get(0).getName() + " before start!", Toast.LENGTH_SHORT).show();
                 allBetsValid = false;
             }
 
-            if (betRequired2 && betValue2.isEmpty()) {
+            if (betRequired2 && betValue2.isEmpty() || (betRequired2 && Double.parseDouble(betValue2) <= 0)) {
                 Toast.makeText(MainActivity.this, "Please input bet value for " + ducks.get(1).getName() + " before start!", Toast.LENGTH_SHORT).show();
                 allBetsValid = false;
             }
 
-            if (betRequired3 && betValue3.isEmpty()) {
+            if (betRequired3 && betValue3.isEmpty() || (betRequired3 && Double.parseDouble(betValue3) <= 0)) {
                 Toast.makeText(MainActivity.this, "Please input bet value for "  + ducks.get(2).getName() + " before start!", Toast.LENGTH_SHORT).show();
                 allBetsValid = false;
             }
@@ -168,11 +178,13 @@ public class MainActivity extends AppCompatActivity {
                 // unable 2 button and checkbox when a game processing
                 btnStart.setEnabled(false);
                 btnReset.setEnabled(false);
+                btnDeposit.setEnabled(false);
                 checkBox1.setEnabled(false);
                 checkBox2.setEnabled(false);
                 checkBox3.setEnabled(false);
                 btnStart.setAlpha(0.5f);
                 btnReset.setAlpha(0.5f);
+                btnDeposit.setAlpha(0.5f);
             }
         });
 
@@ -267,6 +279,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     mp.stop();
                     results.sort(Comparator.comparingInt(DuckResult::getTime));
+                    mp = MediaPlayer.create(MainActivity.this, R.raw.win);
+                    mp.start();
                     showRaceResultDialog(results);
                     for (int i = 0; i < results.size(); i++) {
                         System.out.println("Position " + (i + 1) + ": " + results.get(i).getDuckName() + " Time: " + results.get(i).getTime());
@@ -275,6 +289,8 @@ public class MainActivity extends AppCompatActivity {
                         AppCompatButton btnReset = findViewById(R.id.btnReset);
                         btnReset.setEnabled(true);
                         btnReset.setAlpha(1f);
+                        btnDeposit.setEnabled(true);
+                        btnDeposit.setAlpha(1f);
                     });
                 }
             }
@@ -284,7 +300,6 @@ public class MainActivity extends AppCompatActivity {
     private void showRaceResultDialog(List<DuckResult> results) {
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.result_dialog, null);
-
         int winnerIndex = 0;
         int profit = 0;
         TextView balance = findViewById(R.id.txtBalance);
@@ -368,11 +383,13 @@ public class MainActivity extends AppCompatActivity {
         TextView message = dialogView.findViewById(R.id.message);
         message.setText(resultMessage.toString());
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ResultDialogTheme);
         builder.setView(dialogView)
                 .setCancelable(false) // Prevent dismissing without clicking a button
-                .setPositiveButton("Close", (dialog, which) -> dialog.dismiss()); // Dismiss dialog on button click
-
+                .setPositiveButton("Close", (dialog, which) -> {
+                    dialog.dismiss();
+                    mp.stop();
+                }); // Dismiss dialog on button click
         AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -389,12 +406,12 @@ public class MainActivity extends AppCompatActivity {
     private boolean chargeDialogVisible(TextView balance) {
         String strAmount = this.txtAmount.getText().toString();
         if(strAmount.equals("")){
-            Toast.makeText(MainActivity.this, "Please enter amount: ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Please enter amount!", Toast.LENGTH_SHORT).show();
             return false;
         }
 
         if(Integer.parseInt(strAmount) <= 0){
-            Toast.makeText(MainActivity.this, "Please enter amount greater than 0: ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Please enter amount greater than 0!", Toast.LENGTH_SHORT).show();
             return false;
         }
 

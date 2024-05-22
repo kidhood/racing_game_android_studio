@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ResultDialogTheme" parent="@style/Theme.MaterialComponents.Light.Dialog">
+        <item name="android:windowBackground">#00BCD4</item>
+        <item name="android:windowMinWidthMajor">420dp</item>
+    </style>
+</resources>
