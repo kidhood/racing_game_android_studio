@@ -1,7 +1,9 @@
 package com.fu.duckracing;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private EditText txtUsername, txtPassword;
+    private MediaPlayer mp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,6 +25,9 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = (Button) findViewById(R.id.btnLogin);
         txtUsername = (EditText) findViewById(R.id.txtUserName);
         txtPassword = (EditText) findViewById(R.id.txtPassword);
+        mp = MediaPlayer.create(LoginActivity.this, R.raw.login_music);
+        mp.setLooping(true);
+        mp.start();
 
         btnLogin.setOnClickListener(v -> {
             if(!CheckLogin()){
@@ -42,9 +48,38 @@ public class LoginActivity extends AppCompatActivity {
         }
         if(txtUsername.getText().toString().trim().equals("iloveyou") &&
                 txtPassword.getText().toString().trim().equals("metoo")) {
+            SharedPreferences sharedPref = getSharedPreferences("login_pref", MODE_PRIVATE);
+            sharedPref.edit().putBoolean("isLoggedIn", true).apply(); // Save login state
+            sharedPref.edit().putString("username", txtUsername.getText().toString()).apply(); // Save username
+            mp.stop();
             return true;
         }
 
         return false;
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mp != null && mp.isPlaying()) {
+            mp.pause();  // Pause playback when activity goes out of screen
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mp != null && !mp.isPlaying()) {
+            mp.start();
+        }
+    }
+
+    // ... other methods
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mp != null) {
+            mp.release();  // Release resources when done
+        }
     }
 }

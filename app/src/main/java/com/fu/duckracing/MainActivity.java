@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnDeposit;
     private String txtUsername;
     private Button close;
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +60,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        mp = MediaPlayer.create(MainActivity.this, R.raw.duck_racing);
+        SharedPreferences sharedPref = getSharedPreferences("login_pref", MODE_PRIVATE);
+        boolean isLoggedIn = sharedPref.getBoolean("isLoggedIn", false); // Check saved state
+        if (!isLoggedIn) {
+            Intent i = new Intent(this, LoginActivity.class);
+            startActivity(i);
+            finish();
+        }
         ImageButton btnStart = findViewById(R.id.btnStart);
         AppCompatButton btnReset = findViewById(R.id.btnReset);
         AnimatedSeekBar seekBarDuck1 = findViewById(R.id.seekBarDuck1);
@@ -74,12 +82,12 @@ public class MainActivity extends AppCompatActivity {
 
         TextView username = findViewById(R.id.username);
         // get username from login form
-        Intent intent = getIntent();
-        if (intent.hasExtra("username")) {
-            txtUsername = intent.getStringExtra("username");
-            username.setText(txtUsername);
-        }
-
+        txtUsername = sharedPref.getString("username", "");
+        System.out.println(txtUsername + " teset n3");
+        username.setText(txtUsername);
+        mp = MediaPlayer.create(MainActivity.this, R.raw.wait_game);
+        mp.setLooping(true);
+        mp.start();
         // Charge Component
         chargeDialog = new Dialog(this);
         chargeDialog.setContentView(R.layout.charge_dialog);
@@ -158,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (betRequired3 && betValue3.isEmpty() || (betRequired3 && Double.parseDouble(betValue3) <= 0)) {
-                Toast.makeText(MainActivity.this, "Please input bet value for "  + ducks.get(2).getName() + " before start!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Please input bet value for " + ducks.get(2).getName() + " before start!", Toast.LENGTH_SHORT).show();
                 allBetsValid = false;
             }
 
@@ -175,7 +183,17 @@ public class MainActivity extends AppCompatActivity {
                     userSelectedDucks.add(ducks.get(2));
                     txtBet3.setEnabled(false);
                 }
-                startRace();
+
+                MediaPlayer mp2 = MediaPlayer.create(MainActivity.this, R.raw.effect123);
+
+                mp2.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mediaPlayer) {
+                        startRace();
+                    }
+                });
+                mp.stop();
+                mp2.start();
                 // unable 2 button and checkbox when a game processing
                 btnStart.setEnabled(false);
                 btnReset.setEnabled(false);
@@ -220,13 +238,37 @@ public class MainActivity extends AppCompatActivity {
             chargeDialog.dismiss();
         });
 
-        btnCharge.setOnClickListener( click -> {
-            if(chargeDialogVisible(balance)){
+        btnCharge.setOnClickListener(click -> {
+            if (chargeDialogVisible(balance)) {
                 chargeDialog.dismiss();
             }
         });
     }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mp != null && mp.isPlaying()) {
+            mp.pause();  // Pause playback when activity goes out of screen
+        }
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mp != null && !mp.isPlaying()) {
+            mp.start();
+        }
+    }
+
+    // ... other methods
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mp != null) {
+            mp.release();  // Release resources when done
+        }
+    }
     private void updateBetEditTextState(CheckBox checkBox, EditText editText) {
         if (checkBox.isChecked()) {
             editText.setInputType(InputType.TYPE_CLASS_NUMBER); // Allow decimals (adjust as needed)
@@ -242,8 +284,10 @@ public class MainActivity extends AppCompatActivity {
         if (mp.isPlaying()) {
             mp.stop();
         }
+
         mp.reset();
         mp = MediaPlayer.create(MainActivity.this, R.raw.duck_racing);
+        mp.setLooping(true);
         mp.start();
 
         results = new ArrayList<>();
@@ -342,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
             betValue3 = Integer.parseInt(txtBet3.getText().toString());
         }
 
-        resultMessage.append("Winner: " +  winnerName + "\n");
+        resultMessage.append("Winner: " + winnerName + "\n");
 
 
         for (Duck duck : userSelectedDucks) {
@@ -396,6 +440,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 dialog.dismiss();
                 mp.stop();
+                mp = MediaPlayer.create(MainActivity.this, R.raw.wait_game);
+                mp.start();
             }
         });
         dialog.show();
@@ -412,12 +458,12 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean chargeDialogVisible(TextView balance) {
         String strAmount = this.txtAmount.getText().toString();
-        if(strAmount.equals("")){
+        if (strAmount.equals("")) {
             Toast.makeText(MainActivity.this, "Please enter amount!", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        if(Integer.parseInt(strAmount) <= 0){
+        if (Integer.parseInt(strAmount) <= 0) {
             Toast.makeText(MainActivity.this, "Please enter amount greater than 0!", Toast.LENGTH_SHORT).show();
             return false;
         }
