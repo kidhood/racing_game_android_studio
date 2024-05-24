@@ -10,7 +10,9 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Html;
 import android.text.InputType;
+import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
     private Button btnDeposit;
     private String txtUsername;
     private Button close;
+    private ImageButton help;
+
+    private Dialog helpDia;
+    private TextView btnCloseHelp;
+
+    private Button logout;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -59,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
+        help = findViewById(R.id.help);
+
 
         SharedPreferences sharedPref = getSharedPreferences("login_pref", MODE_PRIVATE);
         boolean isLoggedIn = sharedPref.getBoolean("isLoggedIn", false); // Check saved state
@@ -98,6 +109,27 @@ public class MainActivity extends AppCompatActivity {
         btnDeposit = (Button) findViewById(R.id.btnDeposit);
         txtAmount = chargeDialog.findViewById(R.id.txtChargeAmount);
         chargeDialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.charge_background_xml));
+
+        helpDia = new Dialog(this);
+        helpDia.setContentView(R.layout.tutorial);
+        btnCloseHelp = helpDia.findViewById(R.id.btnHelp);
+
+        help.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                helpDia.show();
+            }
+        });
+
+        logout = findViewById(R.id.logout);
+
+        logout.setOnClickListener(x -> {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        });
+
+        btnCloseHelp.setOnClickListener( x -> helpDia.dismiss());
 
         ducks = new ArrayList<>();
         ducks.add(new Duck(seekBarDuck1, checkBox1, "Vịt gangster"));
@@ -386,7 +418,7 @@ public class MainActivity extends AppCompatActivity {
             betValue3 = Integer.parseInt(txtBet3.getText().toString());
         }
 
-        resultMessage.append("Winner: " + winnerName + "\n");
+        resultMessage.append("<b>Winner: " +  winnerName + "</b><br/>");
 
 
         for (Duck duck : userSelectedDucks) {
@@ -414,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
             // User chose the winner!
             mp = MediaPlayer.create(MainActivity.this, R.raw.win);
             mp.start();
-            resultMessage.append("Congrats! You won " + profit + "$");
+            resultMessage.append("<h3>Congrats! You won <font color='#00a300'> " + profit + "$</font></h3>");
             balanceValue = Integer.parseInt(balance.getText().toString()) + profit;
             String balanceText = String.valueOf(balanceValue);
             balance.setText(balanceText);
@@ -422,14 +454,16 @@ public class MainActivity extends AppCompatActivity {
             // User chose the wrong duck
             mp = MediaPlayer.create(MainActivity.this, R.raw.lose);
             mp.start();
-            resultMessage.append("Unlucky, you lost " + profit + "$");
+            resultMessage.append("<h3>Unlucky, you lost <font color='#FF0000'>" + profit + "$</font><h3>");
             balanceValue = Integer.parseInt(balance.getText().toString()) + profit;
             String balanceText = String.valueOf(balanceValue);
             balance.setText(balanceText);
         }
 
         TextView message = dialogView.findViewById(R.id.message);
-        message.setText(resultMessage.toString());
+        Spanned spannedMessage = Html.fromHtml(resultMessage.toString());
+        message.setText(spannedMessage);
+//        message.setText(resultMessage.toString());
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.ResultDialogTheme);
         builder.setView(dialogView);

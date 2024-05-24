@@ -8,6 +8,18 @@
     android:background="@drawable/login_background"
     android:weightSum="2"
     >
+    <ImageButton
+        android:id="@+id/help"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="4dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/app_name"
+        android:padding="8dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_help"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
     <View
         android:layout_width="0dp"
         android:layout_height="wrap_content"

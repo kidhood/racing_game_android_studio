@@ -36,6 +36,19 @@
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.3" />
 
+        <ImageButton
+            android:id="@+id/help"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="4dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/app_name"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_help"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/textViewUsername"
             android:layout_width="wrap_content"
@@ -253,6 +266,21 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_percent="0.685" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/logout"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/button_background"
+            android:text="Logout"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/txtBet1"

@@ -5,8 +5,10 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -16,12 +18,20 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
     private EditText txtUsername, txtPassword;
     private MediaPlayer mp;
+    private ImageButton help;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        help = findViewById(R.id.help);
+        help.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(LoginActivity.this, "Username: iloveyou, Password: metoo", Toast.LENGTH_SHORT).show();
+            }
+        });
         btnLogin = (Button) findViewById(R.id.btnLogin);
         txtUsername = (EditText) findViewById(R.id.txtUserName);
         txtPassword = (EditText) findViewById(R.id.txtPassword);
@@ -54,7 +64,6 @@ public class LoginActivity extends AppCompatActivity {
             mp.stop();
             return true;
         }
-
         return false;
     }
     @Override
